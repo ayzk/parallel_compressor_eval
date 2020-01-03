@@ -11,20 +11,20 @@
 echo wait .... 30 seconds
 sleep 30
 echo date=`date`
-# NYX
-srun ./parallel_sz_old sz.config 6 512 512 512
-srun ./parallel_zfp sz.config 6 512 512 512
-srun ./parallel_selector sz.config 6 512 512 512
-srun ./parallel_dingwen sz.config 6 512 512 512
+# qmcpack6k
+srun ./parallel_sz sz.config 20 64 64 34496
+srun ./parallel_zfp sz.config 20 64 64 34496
+srun ./parallel_selector sz.config 20 64 64 34496
+srun ./parallel_kai sz.config 20 64 64 34496
 
 # Hurricane
-srun ./parallel_sz_old sz.config 13 496 496 96
+srun ./parallel_sz sz.config 13 496 496 96
 srun ./parallel_zfp sz.config 13 496 496 96
 srun ./parallel_selector sz.config 13 496 496 96
-srun ./parallel_dingwen sz.config 13 496 496 96
+srun ./parallel_kai sz.config 13 496 496 96
 
-# SCALE
-srun ./parallel_sz_old sz.config 12 1200 1200 96
-srun ./parallel_zfp sz.config 12 1200 1200 96
-srun ./parallel_selector sz.config 12 1200 1200 96
-srun ./parallel_dingwen sz.config 12 1200 1200 96
+# miranda
+srun ./parallel_sz sz.config 7 384 384 256
+srun ./parallel_zfp sz.config 7 384 384 256
+srun ./parallel_selector sz.config 7 384 384 256
+srun ./parallel_kai sz.config 7 384 384 256
