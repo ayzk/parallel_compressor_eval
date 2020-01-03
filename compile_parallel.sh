@@ -3,6 +3,7 @@
 module purge
 module load gcc/8.2.0-g7hppkz
 module load openmpi
+rm parallel_selector parallel_sz parallel_sz_kai parallel_zfp
 
 mpicc -std=c99 -O3 parallel_sz_2.0.c -o parallel_sz -I/home/kazhao/tools/SZ-2.1.8.0/install/include /home/kazhao/tools/SZ-2.1.8.0/install/lib/libSZ.a /home/kazhao/tools/SZ-2.1.8.0/install/lib/libzlib.a /home/kazhao/tools/SZ-2.1.8.0/install/lib/libzstd.a -lm
 
