@@ -146,42 +146,51 @@ int main(int argc, char * argv[])
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	int num_vars = atoi(argv[2]);
-	// NYX
-	int nyx_num_vars = 6;
-	char nyx_file[6][50] ={"velocity_x.dat", "velocity_y.dat", "velocity_z.dat", "dark_matter_density_log10.dat", "temperature.dat", "baryon_density_log10.dat"};
-	double nyx_rel_bound[6] = {4e6, 4e6, 4e6, 20, 4e5, 8};
-	// Hurricane
-	int hurricane_num_vars = 13;
-	char hurricane_file[13][50] ={"Uf48_truncated.bin.dat", "Vf48_truncated.bin.dat", "Wf48_truncated.bin.dat", "TCf48_truncated.bin.dat", "Pf48_truncated.bin.dat", "QVAPORf48_truncated.bin.dat", "CLOUDf48_log10_truncated.bin.dat", "QCLOUDf48_log10_truncated.bin.dat", "QICEf48_log10_truncated.bin.dat", "QRAINf48_log10_truncated.bin.dat", "QSNOWf48_log10_truncated.bin.dat", "QGRAUPf48_log10_truncated.bin.dat", "PRECIPf48_log10_truncated.bin.dat"};
-	double hurricane_rel_bound[13] = {8, 4, 0.5, 4, 400, 1e-3, 4, 16, 8, 16, 16, 16, 16};
-	// SCALE 
-	int scale_num_vars = 12;
-	char scale_file[12][50] ={"U_truncated.bin.dat", "V_truncated.bin.dat", "W_truncated.bin.dat", "T_truncated.bin.dat", "RH_truncated.bin.dat", "PRES_truncated.bin.dat", "QC_log10_truncated.bin.dat", "QR_log10_truncated.bin.dat", "QI_log10_truncated.bin.dat", "QS_log10_truncated.bin.dat", "QG_log10_truncated.bin.dat", "QV_log10_truncated.bin.dat"};
-	double scale_rel_bound[12] = {4, 8, 4, 8, 16, 12000, 16, 8, 16, 16, 16, 8};
+    // qmacpack6k
+    int qmcpack6k_num_vars = 20;
+    char qmacpack6k_file[20][50] = {"s2700l300_truncated.bin.dat", "s4500l300_truncated.bin.dat", "s1200l300_truncated.bin.dat",
+                                    "s300l300_truncated.bin.dat", "s4200l300_truncated.bin.dat", "s5400l300_truncated.bin.dat",
+                                    "s1800l300_truncated.bin.dat", "s5700l300_truncated.bin.dat", "s4800l300_truncated.bin.dat",
+                                    "s3300l300_truncated.bin.dat", "s5100l300_truncated.bin.dat", "s1500l300_truncated.bin.dat",
+                                    "s600l300_truncated.bin.dat", "s0l300_truncated.bin.dat", "s3600l300_truncated.bin.dat",
+                                    "s900l300_truncated.bin.dat", "s3900l300_truncated.bin.dat", "s3000l300_truncated.bin.dat",
+                                    "s2100l300_truncated.bin.dat", "s2400l300_truncated.bin.dat"};
+    double qmacpack6k_rel_bound[20] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6,
+                                       1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 
-	// assignment
-	char file[13][50];
-	double * rel_bound;
-	if(num_vars == nyx_num_vars){
-		for(int i=0; i<num_vars; i++) strcpy(file[i], nyx_file[i]);
-		rel_bound = nyx_rel_bound;
-	}
-	else if(num_vars == hurricane_num_vars){
-		for(int i=0; i<num_vars; i++) strcpy(file[i], hurricane_file[i]);
-		rel_bound = hurricane_rel_bound;
-	}
-	else if(num_vars == scale_num_vars){
-		for(int i=0; i<num_vars; i++) strcpy(file[i], scale_file[i]);
-		rel_bound = scale_rel_bound;
-	}
-	else{
-		printf("No such variablem, exit\n");
-		MPI_Finalize();
-		return 0;
-	}
-	size_t compressed_size[13];
+    // Hurricane
+    int hurricane_num_vars = 13;
+    char hurricane_file[13][50] = {"Uf48_truncated.bin.dat", "Vf48_truncated.bin.dat", "Wf48_truncated.bin.dat",
+                                   "TCf48_truncated.bin.dat", "Pf48_truncated.bin.dat", "QVAPORf48_truncated.bin.dat",
+                                   "CLOUDf48_truncated.bin.dat", "QCLOUDf48_truncated.bin.dat", "QICEf48_truncated.bin.dat",
+                                   "QRAINf48_truncated.bin.dat", "QSNOWf48_truncated.bin.dat", "QGRAUPf48_truncated.bin.dat",
+                                   "PRECIPf48_truncated.bin.dat"};
+    double hurricane_rel_bound[13] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+    // miranda
+    int miranda_num_vars = 7;
+    char miranda_file[7][50] = {"velocityy_truncated.bin.dat", "velocityx_truncated.bin.dat", "density_truncated.bin.dat",
+                                "pressure_truncated.bin.dat", "velocityz_truncated.bin.dat", "viscocity_truncated.bin.dat",
+                                "diffusivity_truncated.bin.dat"};
+    double miranda_rel_bound[7] = {1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5};
 
+    // assignment
+    char file[20][50];
+    double *rel_bound;
+    if (num_vars == qmcpack6k_num_vars) {
+        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmacpack6k_file[i]);
+        rel_bound = qmacpack6k_rel_bound;
+    } else if (num_vars == hurricane_num_vars) {
+        for (int i = 0; i < num_vars; i++) strcpy(file[i], hurricane_file[i]);
+        rel_bound = hurricane_rel_bound;
+    } else if (num_vars == miranda_num_vars) {
+        for (int i = 0; i < num_vars; i++) strcpy(file[i], miranda_file[i]);
+        rel_bound = miranda_rel_bound;
+    } else {
+        printf("No such variablem, exit\n");
+        MPI_Finalize();
+        return 0;
+    }
+	size_t compressed_size[20];
 
 	char folder[50] = "/lcrc/project/ECP-EZ/public/compression/datasets";
 	char filename[100];
@@ -192,7 +201,7 @@ int main(int argc, char * argv[])
 	int status;
 	float * dataIn;
 
-	size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 25;
+	size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars;
 	unsigned char * compressed_output = (unsigned char *) malloc(est_compressed_size);
 	unsigned char * compressed_output_pos = compressed_output;
 	int folder_index = world_rank;
