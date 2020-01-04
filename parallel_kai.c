@@ -51,7 +51,7 @@ int main(int argc, char * argv[])
 	if(argc>=8)
 	  r5 = atoi(argv[7]);
 	
-	SZ_Init(NULL);
+//	SZ_Init(NULL);
 
 	if (world_rank == 0) printf ("Start parallel compressing ... \n");
 	if (world_rank == 0) printf("size: %d\n", world_size);
@@ -102,7 +102,7 @@ int main(int argc, char * argv[])
         rel_bound = miranda_rel_bound;
     } else {
         printf("No such variablem, exit\n");
-        SZ_Finalize();
+//        SZ_Finalize();
         MPI_Finalize();
         return 0;
     }
@@ -153,7 +153,7 @@ int main(int argc, char * argv[])
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0) start = MPI_Wtime();
 
-        unsigned char *bytesOut = sz_compress_autotuning_3d<float>(dataIn, r3, r2, r1, rel_bound[i], &compressed_size[i]);
+        unsigned char *bytesOut = sz_compress_autotuning_3d<float>(dataIn, r3, r2, r1, rel_bound[i], compressed_size[i]);
 //		unsigned char *bytesOut = SZ_compress_args(SZ_FLOAT, dataIn, &compressed_size[i], REL, 0, rel_bound[i], 0, r5, r4, r3, r2, r1);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){
@@ -222,7 +222,7 @@ int main(int argc, char * argv[])
 	}
 
 
-	SZ_Finalize();
+//	SZ_Finalize();
 
 	MPI_Finalize();
 
