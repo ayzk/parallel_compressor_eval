@@ -11,11 +11,7 @@
 echo wait .... 30 seconds
 sleep 30
 echo date=`date`
-# qmcpack6k
-srun ./parallel_sz sz.config 20 64 64 34496
-srun ./parallel_zfp sz.config 20 64 64 34496
-srun ./parallel_selector sz.config 20 64 64 34496
-srun ./parallel_kai sz.config 20 64 64 34496
+
 
 # Hurricane
 srun ./parallel_sz sz.config 13 496 496 96
@@ -28,3 +24,9 @@ srun ./parallel_sz sz.config 7 384 384 256
 srun ./parallel_zfp sz.config 7 384 384 256
 srun ./parallel_selector sz.config 7 384 384 256
 srun ./parallel_kai sz.config 7 384 384 256
+
+# qmcpack6k
+srun ./parallel_sz sz.config 20 64 64 34496
+srun ./parallel_zfp sz.config 20 64 64 34496
+srun ./parallel_selector sz.config 20 64 64 34496
+srun ./parallel_kai sz.config 20 64 64 34496
