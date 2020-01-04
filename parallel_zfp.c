@@ -145,6 +145,7 @@ int main(int argc, char * argv[])
 	double costReadOri = 0.0, costReadZip = 0.0, costWriteZip = 0.0, costWriteOut = 0.0, costComp = 0.0, costDecomp = 0.0;
 
 	MPI_Barrier(MPI_COMM_WORLD);
+    int num_vars = atoi(argv[2]);
 
     // qmacpack6k
     int qmcpack6k_num_vars = 20;
