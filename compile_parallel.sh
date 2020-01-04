@@ -13,4 +13,6 @@ g++ -O3 -c sz_zfp_selector.cpp -o selector.o -I/home/xin/codes/zfp-0.3.1/inc -I/
 
 mpicxx -O3 parallel_selector.c selector.o -o parallel_selector -I/home/xin/codes/zfp-0.3.1/inc -I/home/kazhao/tools/SZ-2.0.3.0/install/include /home/kazhao/tools/SZ-2.0.3.0/install/lib/libSZ.a /home/kazhao/tools/SZ-2.0.3.0/install/lib/libzlib.a /home/kazhao/tools/SZ-2.0.3.0/install/lib/libzstd.a /home/xin/codes/zfp-0.3.1/lib/libzfp.a
 
-mpic++ -std=c11 -O3 parallel_kai.c -o parallel_kai -I/home/kazhao/tools/SZ-2.1.8.0/install/include -I/home/kazhao/meta_compressor/build/include /home/kazhao/meta_compressor/build/lib/libsz_cpp.so /home/kazhao/tools/SZ-2.1.8.0/install/lib/libSZ.a /home/kazhao/tools/SZ-2.1.8.0/install/lib/libzlib.a -lm
+g++ -O3 -c rw1.c -o rw.o 
+mpic++ -O3 rw.o parallel_kai.c -o parallel_kai  -I/home/kazhao/meta_compressor/build/include /home/kazhao/meta_compressor/build/lib/libsz_cpp.a /home/kazhao/tools/zstd/lib64/libzstd.a  -lm
+

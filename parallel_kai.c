@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sz_autotuning_3d.hpp"
-#include "rw.h"
+#include "rw1.h"
 #include "mpi.h"
 
 // USAGE
