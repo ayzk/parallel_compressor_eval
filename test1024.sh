@@ -5,8 +5,8 @@
 #SBATCH --nodes 32
 #SBATCH --ntasks-per-node=32
 #SBATCH --time=7-00:00:00
-#SBATCH -o p8192.%j.%N.out
-#SBATCH -e p8192.%j.%N.error
+#SBATCH -o p1024.%j.%N.out
+#SBATCH -e p1024.%j.%N.error
 
 echo wait .... 30 seconds
 sleep 30
