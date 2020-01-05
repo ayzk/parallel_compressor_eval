@@ -207,7 +207,7 @@ int main(int argc, char * argv[])
 
 	if (world_rank == 0)
 	{
-		printf ("SZ_2.0.0 Finish parallel compressing, total compression ratio %.4g.\n", 1.0*r1*r2*r3*sizeof(float)*num_vars / total_size);
+		printf ("Kai Finish parallel compressing, total compression ratio %.4g.\n", 1.0*r1*r2*r3*sizeof(float)*num_vars / total_size);
 		printf("Separate ratios: ");
 		for(int i=0; i<num_vars; i++){
 			printf("%.4g ", 1.0*r1*r2*r3*sizeof(float) / compressed_size[i]);
