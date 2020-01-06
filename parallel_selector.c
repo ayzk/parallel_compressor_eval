@@ -12,6 +12,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "sz.h"
 #include "rw.h"
 #include "sz_zfp_selector.h"
