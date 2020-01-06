@@ -31,8 +31,8 @@ int main(int argc, char * argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
 	int world_rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);	
-	
+	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
 	if(argc < 3)
 	{
 		printf("Test case: testfloat_compress [config_file] [srcFilePath] [dimension sizes...]\n");
@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
 	}
 
 	cfgFile=argv[1];
-	
+
 	if(argc>=4)
 	  r1 = atoi(argv[3]); //8
 	if(argc>=5)
@@ -52,7 +52,7 @@ int main(int argc, char * argv[])
 	  r4 = atoi(argv[6]);
 	if(argc>=8)
 	  r5 = atoi(argv[7]);
-	
+
 	SZ_Init(NULL);
 
 	if (world_rank == 0) printf ("Start parallel compressing ... \n");
@@ -120,7 +120,7 @@ int main(int argc, char * argv[])
 	char filename[100];
 	char zip_filename[100];
 	// char out_filename[100];
-	size_t inSize, outSize; 
+	size_t inSize, outSize;
 	size_t nbEle;
 	int status;
 	float * dataIn;
@@ -153,7 +153,7 @@ int main(int argc, char * argv[])
 			end = MPI_Wtime();
 			costReadOri += end - start;
 		}
-		
+
 		// Compress Input Data
 		size_t out_size;
 		if (world_rank == 0) printf ("Compressing %s\n", filename);
@@ -171,7 +171,11 @@ int main(int argc, char * argv[])
 		free(bytesOut);
 	}
 
-	sprintf(zip_filename, "%s/%d/sz_%d.out", folder, folder_index, rand());	// Write Compressed Data
+    struct stat st = {0};
+	if (stat("/lcrc/globalscratch/kazhao", &st) == -1) {
+        mkdir("/lcrc/globalscratch/kazhao", 0777);
+    }
+	sprintf(zip_filename, "%s/sz_%d_%d.out", "/lcrc/globalscratch/kazhao", folder_index, rand());	// Write Compressed Data
 	size_t total_size = compressed_output_pos - compressed_output;
 	// Write Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -195,7 +199,11 @@ int main(int argc, char * argv[])
 	}
 	compressed_output_pos = compressed_output;
 
-    remove(zip_filename);
+    if (inSize != total_size) {
+        printf("ERROR! Broken file : %s", zip_filename);
+    } else {
+        remove(zip_filename);
+    }
 
 	for(int i=0; i<num_vars; i++){
 		// Decompress Compressed Data
@@ -205,7 +213,7 @@ int main(int argc, char * argv[])
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){
 			end = MPI_Wtime();
-			costDecomp += end - start; 
+			costDecomp += end - start;
 		}
 		compressed_output_pos += compressed_size[i];
 		free(dataOut);

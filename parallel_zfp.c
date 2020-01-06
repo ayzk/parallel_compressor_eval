@@ -265,8 +265,12 @@ int main(int argc, char * argv[])
 		compressed_output_pos += compressed_size[i];
 		free(bytesOut);
 	}
+    struct stat st = {0};
+    if (stat("/lcrc/globalscratch/kazhao", &st) == -1) {
+        mkdir("/lcrc/globalscratch/kazhao", 0777);
+    }
+    sprintf(zip_filename, "%s/zfp_%d_%d.out", "/lcrc/globalscratch/kazhao", folder_index, rand());	// Write Compressed Data
 
-	sprintf(zip_filename, "%s/%d/zfp_%d.out", folder, folder_index, rand());	// Write Compressed Data
 	size_t total_size = compressed_output_pos - compressed_output;
 	// Write Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -288,8 +292,11 @@ int main(int argc, char * argv[])
 		costReadZip += end - start;
 	}
 	compressed_output_pos = compressed_output;
-    remove(zip_filename);
-
+    if (inSize != total_size) {
+        printf("ERROR! Broken file : %s", zip_filename);
+    } else {
+        remove(zip_filename);
+    }
     for(int i=0; i<num_vars; i++){
 		// Decompress Compressed Data
 		MPI_Barrier(MPI_COMM_WORLD);
