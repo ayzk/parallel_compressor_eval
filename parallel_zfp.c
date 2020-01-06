@@ -51,7 +51,7 @@ unsigned char * zfp_compress_3D(float * array, double tolerance, size_t r1, size
     if (!zfpsize) {
       fprintf(stderr, "compression failed\n");
       status = 1;
-    }	
+    }
 
 	zfp_field_free(field);
 	zfp_stream_close(zfp);
@@ -118,8 +118,8 @@ int main(int argc, char * argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
 	int world_rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);	
-	
+	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
 	if(argc < 3)
 	{
 		printf("Test case: testfloat_compress [config_file] [srcFilePath] [dimension sizes...]\n");
@@ -128,7 +128,7 @@ int main(int argc, char * argv[])
 	}
 
 	cfgFile=argv[1];
-	
+
 	if(argc>=4)
 	  r1 = atoi(argv[3]); //8
 	if(argc>=5)
@@ -139,7 +139,7 @@ int main(int argc, char * argv[])
 	  r4 = atoi(argv[6]);
 	if(argc>=8)
 	  r5 = atoi(argv[7]);
-	
+
 	if (world_rank == 0) printf ("Start parallel compressing ... \n");
 	if (world_rank == 0) printf("size: %d\n", world_size);
 	double start, end;
@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
 
     int qmcpack8h_num_vars = 2;
     char qmcpack8h_file[2][50] = {"spin_0_truncated.bin.dat", "spin_1_truncated.bin.dat"};
-    double qmcpack8h_rel_bound[20] = {1e-6, 1e-6};
+    double qmcpack8h_rel_bound[2] = {1e-6, 1e-6};
 
     // qmacpack6k
     int qmcpack6k_num_vars = 20;
@@ -205,12 +205,12 @@ int main(int argc, char * argv[])
 	char filename[100];
 	char zip_filename[100];
 	// char out_filename[100];
-	size_t inSize, outSize; 
+	size_t inSize, outSize;
 	size_t nbEle;
 	int status;
 	float * dataIn;
 
-    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 3;
+    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 2;
 	unsigned char * compressed_output = (unsigned char *) malloc(est_compressed_size);
 	unsigned char * compressed_output_pos = compressed_output;
 	int folder_index = world_rank;
@@ -238,7 +238,7 @@ int main(int argc, char * argv[])
 			end = MPI_Wtime();
 			costReadOri += end - start;
 		}
-		
+
 		// Compress Input Data
 		size_t out_size;
 		if (world_rank == 0) printf ("Compressing %s\n", filename);
@@ -288,7 +288,7 @@ int main(int argc, char * argv[])
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){
 			end = MPI_Wtime();
-			costDecomp += end - start; 
+			costDecomp += end - start;
 		}
 		compressed_output_pos += compressed_size[i];
 		free(dataOut);

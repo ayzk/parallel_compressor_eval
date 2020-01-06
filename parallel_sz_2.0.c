@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
 
     int qmcpack8h_num_vars = 2;
     char qmcpack8h_file[2][50] = {"spin_0_truncated.bin.dat", "spin_1_truncated.bin.dat"};
-    double qmcpack8h_rel_bound[20] = {1e-6, 1e-6};
+    double qmcpack8h_rel_bound[2] = {1e-6, 1e-6};
 
     int qmcpack6k_num_vars = 20;
     char qmcpack6k_file[20][50] = {"s2700l300_truncated.bin.dat", "s4500l300_truncated.bin.dat", "s1200l300_truncated.bin.dat",
