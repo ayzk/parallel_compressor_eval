@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "sz.h"
 #include "rw.h"
 #include "mpi.h"
@@ -20,6 +21,7 @@
 int main(int argc, char * argv[])
 {
 
+    srand(time(0));
 	size_t r5=0,r4=0,r3=0,r2=0,r1=0;
 	char *cfgFile;
 
@@ -61,16 +63,19 @@ int main(int argc, char * argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
     int num_vars = atoi(argv[2]);
 
-    // qmacpack6k
+    int qmcpack8h_num_vars = 2;
+    char qmcpack8h_file[2][50] = {"spin_0_truncated.bin.dat", "spin_1_truncated.bin.dat"};
+    double qmcpack8h_rel_bound[20] = {1e-6, 1e-6};
+
     int qmcpack6k_num_vars = 20;
-    char qmacpack6k_file[20][50] = {"s2700l300_truncated.bin.dat", "s4500l300_truncated.bin.dat", "s1200l300_truncated.bin.dat",
+    char qmcpack6k_file[20][50] = {"s2700l300_truncated.bin.dat", "s4500l300_truncated.bin.dat", "s1200l300_truncated.bin.dat",
                                     "s300l300_truncated.bin.dat", "s4200l300_truncated.bin.dat", "s5400l300_truncated.bin.dat",
                                     "s1800l300_truncated.bin.dat", "s5700l300_truncated.bin.dat", "s4800l300_truncated.bin.dat",
                                     "s3300l300_truncated.bin.dat", "s5100l300_truncated.bin.dat", "s1500l300_truncated.bin.dat",
                                     "s600l300_truncated.bin.dat", "s0l300_truncated.bin.dat", "s3600l300_truncated.bin.dat",
                                     "s900l300_truncated.bin.dat", "s3900l300_truncated.bin.dat", "s3000l300_truncated.bin.dat",
                                     "s2100l300_truncated.bin.dat", "s2400l300_truncated.bin.dat"};
-    double qmacpack6k_rel_bound[20] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6,
+    double qmcpack6k_rel_bound[20] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6,
                                        1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 
     // Hurricane
@@ -92,8 +97,11 @@ int main(int argc, char * argv[])
     char file[20][50];
     double *rel_bound;
     if (num_vars == qmcpack6k_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmacpack6k_file[i]);
-        rel_bound = qmacpack6k_rel_bound;
+        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmcpack6k_file[i]);
+        rel_bound = qmcpack6k_rel_bound;
+    }else if (num_vars == qmcpack8h_num_vars) {
+        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmcpack8h_file[i]);
+        rel_bound = qmcpack8h_rel_bound;
     } else if (num_vars == hurricane_num_vars) {
         for (int i = 0; i < num_vars; i++) strcpy(file[i], hurricane_file[i]);
         rel_bound = hurricane_rel_bound;
@@ -117,13 +125,12 @@ int main(int argc, char * argv[])
 	int status;
 	float * dataIn;
 
-	size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars;
+    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 5;
 	unsigned char * compressed_output = (unsigned char *) malloc(est_compressed_size);
 	unsigned char * compressed_output_pos = compressed_output;
 	int folder_index = world_rank;
 	for(int i=0; i<num_vars; i++){
 		sprintf(filename, "%s/%d/%s", folder, folder_index, file[i]);
-		sprintf(zip_filename, "%s/%d/%s.sz", folder, folder_index, file[i]);
 		// Read Input Data
 		if(world_rank == 0){
 			start = MPI_Wtime();
@@ -164,7 +171,7 @@ int main(int argc, char * argv[])
 		free(bytesOut);
 	}
 
-	sprintf(zip_filename, "%s/%d/sz_2.0.0.out", folder, folder_index);	// Write Compressed Data
+	sprintf(zip_filename, "%s/%d/sz_%d.out", folder, folder_index, rand());	// Write Compressed Data
 	size_t total_size = compressed_output_pos - compressed_output;
 	// Write Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -181,11 +188,14 @@ int main(int argc, char * argv[])
 	if(world_rank == 0) start = MPI_Wtime();
 	compressed_output = readByteData(zip_filename, &inSize, &status);
 	MPI_Barrier(MPI_COMM_WORLD);
-	if(world_rank == 0){
+
+    if(world_rank == 0){
 		end = MPI_Wtime();
 		costReadZip += end - start;
 	}
 	compressed_output_pos = compressed_output;
+
+    remove(zip_filename);
 
 	for(int i=0; i<num_vars; i++){
 		// Decompress Compressed Data
@@ -217,7 +227,6 @@ int main(int argc, char * argv[])
 		printf ("Timecost of compressing using %d processes = %.2f seconds\n", world_size, costComp);
 		printf ("Timecost of decompressing using %d processes = %.2f seconds\n\n", world_size, costDecomp);
 	}
-
 
 	SZ_Finalize();
 

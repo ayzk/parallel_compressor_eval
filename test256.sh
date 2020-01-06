@@ -1,15 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=p8192
+#SBATCH --job-name=p256
 #SBATCH -p bdwall
 #SBATCH -A ECP-EZ
-#SBATCH --nodes 256
+#SBATCH --nodes 8
 #SBATCH --ntasks-per-node=32
-#SBATCH --time=7-00:00:00
-#SBATCH -o p8192.%j.%N.out
-#SBATCH -e p8192.%j.%N.error
+#SBATCH --time=48:00:00
+#SBATCH -o 256.%j.%N.out
+#SBATCH -e p256.%j.%N.error
 
-echo wait .... 30 seconds
-sleep 30
 echo date=`date`
 
 
@@ -30,3 +28,9 @@ srun ./parallel_sz sz.config 20 64 64 34496
 srun ./parallel_zfp sz.config 20 64 64 34496
 srun ./parallel_selector sz.config 20 64 64 34496
 srun ./parallel_kai sz.config 20 64 64 34496
+
+# qmcpack8h
+srun ./parallel_sz sz.config 2 64 64 93840
+srun ./parallel_zfp sz.config 2 64 64 93840
+srun ./parallel_selector sz.config 2 64 64 93840
+srun ./parallel_kai sz.config 2 64 64 93840

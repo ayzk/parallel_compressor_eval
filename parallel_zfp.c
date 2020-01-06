@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "zfp.h"
 #include "mpi.h"
 #include "rw.h"
@@ -107,7 +108,7 @@ float * zfp_decompress_3D(unsigned char * comp_data, double tolerance, size_t bu
 // mpirun -np 16 parallel sz.config folder_num r3 r2 r1
 int main(int argc, char * argv[])
 {
-
+    srand(time(0));
 	size_t r5=0,r4=0,r3=0,r2=0,r1=0;
 	char *cfgFile;
 
@@ -147,6 +148,10 @@ int main(int argc, char * argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
     int num_vars = atoi(argv[2]);
 
+    int qmcpack8h_num_vars = 2;
+    char qmcpack8h_file[2][50] = {"spin_0_truncated.bin.dat", "spin_1_truncated.bin.dat"};
+    double qmcpack8h_rel_bound[20] = {1e-6, 1e-6};
+
     // qmacpack6k
     int qmcpack6k_num_vars = 20;
     char qmacpack6k_file[20][50] = {"s2700l300_truncated.bin.dat", "s4500l300_truncated.bin.dat", "s1200l300_truncated.bin.dat",
@@ -180,6 +185,9 @@ int main(int argc, char * argv[])
     if (num_vars == qmcpack6k_num_vars) {
         for (int i = 0; i < num_vars; i++) strcpy(file[i], qmacpack6k_file[i]);
         rel_bound = qmacpack6k_rel_bound;
+    } else if (num_vars == qmcpack8h_num_vars) {
+        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmcpack8h_file[i]);
+        rel_bound = qmcpack8h_rel_bound;
     } else if (num_vars == hurricane_num_vars) {
         for (int i = 0; i < num_vars; i++) strcpy(file[i], hurricane_file[i]);
         rel_bound = hurricane_rel_bound;
@@ -202,13 +210,12 @@ int main(int argc, char * argv[])
 	int status;
 	float * dataIn;
 
-	size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars;
+    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 3;
 	unsigned char * compressed_output = (unsigned char *) malloc(est_compressed_size);
 	unsigned char * compressed_output_pos = compressed_output;
 	int folder_index = world_rank;
 	for(int i=0; i<num_vars; i++){
 		sprintf(filename, "%s/%d/%s", folder, folder_index, file[i]);
-		sprintf(zip_filename, "%s/%d/%s.sz", folder, folder_index, file[i]);
 		// Read Input Data
 		if(world_rank == 0){
 			start = MPI_Wtime();
@@ -249,7 +256,7 @@ int main(int argc, char * argv[])
 		free(bytesOut);
 	}
 
-	sprintf(zip_filename, "%s/%d/zfp.out", folder, folder_index);	// Write Compressed Data
+	sprintf(zip_filename, "%s/%d/zfp_%d.out", folder, folder_index, rand());	// Write Compressed Data
 	size_t total_size = compressed_output_pos - compressed_output;
 	// Write Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -271,8 +278,9 @@ int main(int argc, char * argv[])
 		costReadZip += end - start;
 	}
 	compressed_output_pos = compressed_output;
+    remove(zip_filename);
 
-	for(int i=0; i<num_vars; i++){
+    for(int i=0; i<num_vars; i++){
 		// Decompress Compressed Data
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0) start = MPI_Wtime();
