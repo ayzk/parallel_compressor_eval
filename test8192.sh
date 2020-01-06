@@ -2,7 +2,7 @@
 #SBATCH --job-name=p8192
 #SBATCH -p bdwall
 #SBATCH -A ECP-EZ
-#SBATCH --nodes 128
+#SBATCH --nodes 256
 #SBATCH --ntasks-per-node=32
 #SBATCH --time=6:00:00
 #SBATCH -o p8192.%j.%N.out
