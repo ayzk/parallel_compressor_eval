@@ -182,6 +182,7 @@ int main(int argc, char * argv[])
     // assignment
     char file[20][50];
     double *rel_bound;
+    double precision[20];
     if (num_vars == qmcpack6k_num_vars) {
         for (int i = 0; i < num_vars; i++) strcpy(file[i], qmacpack6k_file[i]);
         rel_bound = qmacpack6k_rel_bound;
@@ -199,6 +200,7 @@ int main(int argc, char * argv[])
         MPI_Finalize();
         return 0;
     }
+
 	size_t compressed_size[20];
 
 	char folder[50] = "/lcrc/project/ECP-EZ/public/compression/datasets";
@@ -239,12 +241,20 @@ int main(int argc, char * argv[])
 			costReadOri += end - start;
 		}
 
+        float max = dataIn[0];
+        float min = dataIn[0];
+        for (int j = 1; j < r1 * r2 * r3; j++) {
+            if (max < dataIn[j]) max = dataIn[j];
+            if (min > dataIn[j]) min = dataIn[j];
+        }
+        precision[i] = rel_bound[i] * (max - min);
+
 		// Compress Input Data
 		size_t out_size;
 		if (world_rank == 0) printf ("Compressing %s\n", filename);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0) start = MPI_Wtime();
-		unsigned char * bytesOut = zfp_compress_3D(dataIn, rel_bound[i], r3, r2, r1, &compressed_size[i]);
+		unsigned char * bytesOut = zfp_compress_3D(dataIn, precision[i], r3, r2, r1, &compressed_size[i]);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){
 			end = MPI_Wtime();
@@ -284,7 +294,7 @@ int main(int argc, char * argv[])
 		// Decompress Compressed Data
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0) start = MPI_Wtime();
-		float * dataOut = zfp_decompress_3D(compressed_output_pos, rel_bound[i], compressed_size[i], r3, r2, r1);
+		float * dataOut = zfp_decompress_3D(compressed_output_pos, precision[i], compressed_size[i], r3, r2, r1);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){
 			end = MPI_Wtime();
