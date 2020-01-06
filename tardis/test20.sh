@@ -21,8 +21,8 @@ srun ./parallel_zfp sz.config 7 384 384 256
 srun ./parallel_selector sz.config 7 384 384 256
 srun ./parallel_kai sz.config 7 384 384 256
 
-# qmcpack6k
-srun ./parallel_sz sz.config 20 64 64 34496
-srun ./parallel_zfp sz.config 20 64 64 34496
-srun ./parallel_selector sz.config 20 64 64 34496
-srun ./parallel_kai sz.config 20 64 64 34496
+# qmcpack8h
+srun ./parallel_sz sz.config 2 64 64 93840
+srun ./parallel_zfp sz.config 2 64 64 93840
+srun ./parallel_selector sz.config 2 64 64 93840
+srun ./parallel_kai sz.config 2 64 64 93840

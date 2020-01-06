@@ -1,7 +1,7 @@
 import glob
 import numpy as np
 
-for dataset in ['/hurricane-100x500x500', 'miranda-256x384x384', 'qmcpack6k-34500x69x69']:
+for dataset in ['/hurricane-100x500x500', 'miranda-256x384x384', 'qmcpack6k-34500x69x69', 'qmcpack8h-93840x69x69']:
     for filepath in glob.glob('/home/kzhao016/data/{:}/*'.format(dataset)):
         filename = filepath.split('/')[-1]
 
