@@ -4,7 +4,7 @@
 #SBATCH -A ECP-EZ
 #SBATCH --nodes 128
 #SBATCH --ntasks-per-node=32
-#SBATCH --time=48:00:00
+#SBATCH --time=24:00:00
 #SBATCH -o p4096.%j.%N.out
 #SBATCH -e p4096.%j.%N.error
 
