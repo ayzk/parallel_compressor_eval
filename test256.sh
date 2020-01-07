@@ -5,7 +5,7 @@
 #SBATCH --nodes 8
 #SBATCH --ntasks-per-node=32
 #SBATCH --time=48:00:00
-#SBATCH -o 256.%j.%N.out
+#SBATCH -o p256.%j.%N.out
 #SBATCH -e p256.%j.%N.error
 
 echo date=`date`
@@ -22,12 +22,6 @@ srun ./parallel_sz sz.config 7 384 384 256
 srun ./parallel_zfp sz.config 7 384 384 256
 srun ./parallel_selector sz.config 7 384 384 256
 srun ./parallel_kai sz.config 7 384 384 256
-
-# qmcpack6k
-srun ./parallel_sz sz.config 20 64 64 34496
-srun ./parallel_zfp sz.config 20 64 64 34496
-srun ./parallel_selector sz.config 20 64 64 34496
-srun ./parallel_kai sz.config 20 64 64 34496
 
 # qmcpack8h
 srun ./parallel_sz sz.config 2 64 64 93840
