@@ -67,37 +67,15 @@ int main(int argc, char * argv[])
 
 	int num_vars = atoi(argv[2]);
 
-    int qmcpack8h_num_vars = 2;
-    char qmcpack8h_file[2][50] = {"spin_0_truncated.bin.dat", "spin_1_truncated.bin.dat"};
-    double qmcpack8h_rel_bound[2] = {1e-6, 1e-6};
+    int qmcpack8h_num_vars = 1;
+    char qmcpack8h_file[1][50] = {"spin_0_truncated.bin.dat"};
+    double qmcpack8h_rel_bound[1] = {1e-6};
 
-    // Hurricane
-    int hurricane_num_vars = 13;
-    char hurricane_file[13][50] = {"Uf48_truncated.bin.dat", "Vf48_truncated.bin.dat", "Wf48_truncated.bin.dat",
-                                   "TCf48_truncated.bin.dat", "Pf48_truncated.bin.dat", "QVAPORf48_truncated.bin.dat",
-                                   "CLOUDf48_truncated.bin.dat", "QCLOUDf48_truncated.bin.dat", "QICEf48_truncated.bin.dat",
-                                   "QRAINf48_truncated.bin.dat", "QSNOWf48_truncated.bin.dat", "QGRAUPf48_truncated.bin.dat",
-                                   "PRECIPf48_truncated.bin.dat"};
-    double hurricane_rel_bound[13] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-    // miranda
-    int miranda_num_vars = 7;
-    char miranda_file[7][50] = {"velocityy_truncated.bin.dat", "velocityx_truncated.bin.dat", "density_truncated.bin.dat",
-                                "pressure_truncated.bin.dat", "velocityz_truncated.bin.dat", "viscocity_truncated.bin.dat",
-                                "diffusivity_truncated.bin.dat"};
-    double miranda_rel_bound[7] = {1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5};
-
-	// assignment
 	char file[13][50];
 	double * rel_bound;
     if  (num_vars == qmcpack8h_num_vars) {
         for (int i = 0; i < num_vars; i++) strcpy(file[i], qmcpack8h_file[i]);
         rel_bound = qmcpack8h_rel_bound;
-    } else if (num_vars == hurricane_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], hurricane_file[i]);
-        rel_bound = hurricane_rel_bound;
-    } else if (num_vars == miranda_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], miranda_file[i]);
-        rel_bound = miranda_rel_bound;
     } else {
         printf("No such variablem, exit\n");
         SZ_Finalize();
@@ -117,7 +95,7 @@ int main(int argc, char * argv[])
 	int status;
 	float * dataIn;
 
-	size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 4.5;
+	size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 6.2;
 	unsigned char * compressed_output = (unsigned char *) malloc(est_compressed_size);
 	unsigned char * compressed_output_pos = compressed_output;
 	int folder_index = world_rank;
