@@ -278,7 +278,8 @@ int main(int argc, char * argv[])
 	// Write Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
 	if(world_rank == 0) start = MPI_Wtime();
-	writeByteData(compressed_output, total_size, zip_filename, &status);
+    if (world_rank == 0) printf("write compressed file to disk %s \n", zip_filename);
+    writeByteData(compressed_output, total_size, zip_filename, &status);
 	MPI_Barrier(MPI_COMM_WORLD);
 	if(world_rank == 0){
 		end = MPI_Wtime();
@@ -288,22 +289,25 @@ int main(int argc, char * argv[])
 	// Read Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
 	if(world_rank == 0) start = MPI_Wtime();
-	compressed_output = readByteData(zip_filename, &inSize, &status);
+    if (world_rank == 0) printf("read compressed file from disk %s \n", zip_filename);
+    compressed_output = readByteData(zip_filename, &inSize, &status);
+    if (inSize != total_size) {
+        printf("ERROR! Broken file : %s", zip_filename);
+    } else {
+        remove(zip_filename);
+    }
 	MPI_Barrier(MPI_COMM_WORLD);
 	if(world_rank == 0){
 		end = MPI_Wtime();
 		costReadZip += end - start;
 	}
 	compressed_output_pos = compressed_output;
-    if (inSize != total_size) {
-        printf("ERROR! Broken file : %s", zip_filename);
-    } else {
-        remove(zip_filename);
-    }
+
     for(int i=0; i<num_vars; i++){
 		// Decompress Compressed Data
 		MPI_Barrier(MPI_COMM_WORLD);
-		if(world_rank == 0) start = MPI_Wtime();
+        if (world_rank == 0) printf("decompress %d-th field\n", i);
+        if(world_rank == 0) start = MPI_Wtime();
 		float * dataOut = zfp_decompress_3D(compressed_output_pos, precision[i], compressed_size[i], r3, r2, r1);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){

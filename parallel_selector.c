@@ -186,6 +186,7 @@ int main(int argc, char *argv[]) {
 
     // Write Compressed Data
     MPI_Barrier(MPI_COMM_WORLD);
+    if (world_rank == 0) printf("write compressed file to disk %s \n", zip_filename);
     if (world_rank == 0) start = MPI_Wtime();
     writeByteData(compressed_output, total_size, zip_filename, &status);
     MPI_Barrier(MPI_COMM_WORLD);
@@ -196,22 +197,25 @@ int main(int argc, char *argv[]) {
     free(compressed_output);
     // Read Compressed Data
     MPI_Barrier(MPI_COMM_WORLD);
+    if (world_rank == 0) printf("read compressed file from disk %s \n", zip_filename);
     if (world_rank == 0) start = MPI_Wtime();
     compressed_output = readByteData(zip_filename, &inSize, &status);
+    if (inSize != total_size) {
+        printf("ERROR! Broken file : %s", zip_filename);
+    } else {
+        remove(zip_filename);
+    }
     MPI_Barrier(MPI_COMM_WORLD);
     if (world_rank == 0) {
         end = MPI_Wtime();
         costReadZip += end - start;
     }
     compressed_output_pos = compressed_output;
-    if (inSize != total_size) {
-        printf("ERROR! Broken file : %s", zip_filename);
-    } else {
-        remove(zip_filename);
-    }
+
     for (int i = 0; i < num_vars; i++) {
         // Decompress Compressed Data
         MPI_Barrier(MPI_COMM_WORLD);
+        if (world_rank == 0) printf("decompress %d-th field\n", i);
         if (world_rank == 0) start = MPI_Wtime();
         float *dataOut = decompress_block(compressed_output_pos, compressed_size[i], comp_data_size_before_lossless[i], select[i],
                                           r1, r2, r3);
