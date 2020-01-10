@@ -133,11 +133,9 @@ int main(int argc, char *argv[]) {
             MPI_Bcast(dataIn, nbEle, MPI_FLOAT, 0, MPI_COMM_WORLD);
             end = MPI_Wtime();
             printf("broadcast time: %.2f\n", end - start);
-            printf("number of element %ld \n ", nbEle);
         } else {
             MPI_Bcast(&nbEle, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
             dataIn = (float *) malloc(nbEle * sizeof(float));
-            printf("number of element %ld \n ", nbEle);
             MPI_Bcast(dataIn, nbEle, MPI_FLOAT, 0, MPI_COMM_WORLD);
         }
         MPI_Barrier(MPI_COMM_WORLD);
@@ -148,7 +146,6 @@ int main(int argc, char *argv[]) {
 
         // Compress Input Data
         if (world_rank == 0) printf("Compressing %s\n", filename);
-        printf("%d %d %d %d\n", world_rank, r1, r2, r3);
         MPI_Barrier(MPI_COMM_WORLD);
         if (world_rank == 0) start = MPI_Wtime();
         unsigned char *bytesOut = compress_block(dataIn, r1, r2, r3, rel_bound[i], &compressed_size[i],
