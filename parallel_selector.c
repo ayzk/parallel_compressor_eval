@@ -70,18 +70,6 @@ int main(int argc, char *argv[]) {
     char qmcpack8h_file[2][50] = {"spin_0_truncated.bin.dat", "spin_1_truncated.bin.dat"};
     double qmcpack8h_rel_bound[2] = {1e-6, 1e-6};
 
-    // qmacpack6k
-    int qmcpack6k_num_vars = 20;
-    char qmacpack6k_file[20][50] = {"s2700l300_truncated.bin.dat", "s4500l300_truncated.bin.dat", "s1200l300_truncated.bin.dat",
-                                    "s300l300_truncated.bin.dat", "s4200l300_truncated.bin.dat", "s5400l300_truncated.bin.dat",
-                                    "s1800l300_truncated.bin.dat", "s5700l300_truncated.bin.dat", "s4800l300_truncated.bin.dat",
-                                    "s3300l300_truncated.bin.dat", "s5100l300_truncated.bin.dat", "s1500l300_truncated.bin.dat",
-                                    "s600l300_truncated.bin.dat", "s0l300_truncated.bin.dat", "s3600l300_truncated.bin.dat",
-                                    "s900l300_truncated.bin.dat", "s3900l300_truncated.bin.dat", "s3000l300_truncated.bin.dat",
-                                    "s2100l300_truncated.bin.dat", "s2400l300_truncated.bin.dat"};
-    double qmacpack6k_rel_bound[20] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6,
-                                       1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-
     // Hurricane
     int hurricane_num_vars = 13;
     char hurricane_file[13][50] = {"Uf48_truncated.bin.dat", "Vf48_truncated.bin.dat", "Wf48_truncated.bin.dat",
@@ -100,10 +88,7 @@ int main(int argc, char *argv[]) {
     // assignment
     char file[20][50];
     double *rel_bound;
-    if (num_vars == qmcpack6k_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmacpack6k_file[i]);
-        rel_bound = qmacpack6k_rel_bound;
-    } else if (num_vars == qmcpack8h_num_vars) {
+    if  (num_vars == qmcpack8h_num_vars) {
         for (int i = 0; i < num_vars; i++) strcpy(file[i], qmcpack8h_file[i]);
         rel_bound = qmcpack8h_rel_bound;
     } else if (num_vars == hurricane_num_vars) {
@@ -131,7 +116,7 @@ int main(int argc, char *argv[]) {
     int status;
     float *dataIn;
 
-    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 3;
+    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 2;
     unsigned char *compressed_output = (unsigned char *) malloc(est_compressed_size);
     unsigned char *compressed_output_pos = compressed_output;
     int folder_index = world_rank;
@@ -148,9 +133,11 @@ int main(int argc, char *argv[]) {
             MPI_Bcast(dataIn, nbEle, MPI_FLOAT, 0, MPI_COMM_WORLD);
             end = MPI_Wtime();
             printf("broadcast time: %.2f\n", end - start);
+            printf("number of element %ld \n ", nbEle);
         } else {
             MPI_Bcast(&nbEle, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
             dataIn = (float *) malloc(nbEle * sizeof(float));
+            printf("number of element %ld \n ", nbEle);
             MPI_Bcast(dataIn, nbEle, MPI_FLOAT, 0, MPI_COMM_WORLD);
         }
         MPI_Barrier(MPI_COMM_WORLD);
@@ -161,10 +148,12 @@ int main(int argc, char *argv[]) {
 
         // Compress Input Data
         if (world_rank == 0) printf("Compressing %s\n", filename);
+        printf("%d %d %d %d\n", world_rank, r1, r2, r3);
         MPI_Barrier(MPI_COMM_WORLD);
         if (world_rank == 0) start = MPI_Wtime();
         unsigned char *bytesOut = compress_block(dataIn, r1, r2, r3, rel_bound[i], &compressed_size[i],
                                                  &comp_data_size_before_lossless[i], &select[i]);
+        if (world_rank == 0) printf("Finish Compresse %s\n", filename);
         MPI_Barrier(MPI_COMM_WORLD);
         if (world_rank == 0) {
             end = MPI_Wtime();
