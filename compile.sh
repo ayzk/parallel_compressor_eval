@@ -12,6 +12,7 @@ mpicc -std=c99 -O3 parallel_zfp.c -o parallel_zfp -I/home/kazhao/tools/zfp-20191
 g++ -O3 -c sz_zfp_selector.cpp -o selector.o -I/home/kazhao/tools/zfp-0.3.1/inc -I/home/kazhao/tools/SZ-2.0.3.0/install/include
 
 mpicxx -O3 parallel_selector.c selector.o -o parallel_selector -I/home/kazhao/tools/zfp-0.3.1/inc -I/home/kazhao/tools/SZ-2.0.3.0/install/include /home/kazhao/tools/SZ-2.0.3.0/install/lib/libSZ.a /home/kazhao/tools/SZ-2.0.3.0/install/lib/libzlib.a  /home/kazhao/tools/SZ-2.0.3.0/install/lib/libzstd.a /home/kazhao/tools/zfp-0.3.1/lib/libzfp.a
+mpicxx -O3 parallel_selector_in_block.c selector.o -o parallel_selector_in_block -I/home/kazhao/tools/zfp-0.3.1/inc -I/home/kazhao/tools/SZ-2.0.3.0/install/include /home/kazhao/tools/SZ-2.0.3.0/install/lib/libSZ.a /home/kazhao/tools/SZ-2.0.3.0/install/lib/libzlib.a  /home/kazhao/tools/SZ-2.0.3.0/install/lib/libzstd.a /home/kazhao/tools/zfp-0.3.1/lib/libzfp.a
 
 g++ -O3 -c rw1.c -o rw.o 
 mpic++ -O3 rw.o parallel_kai.c -o parallel_kai  -I/home/kazhao/meta_compressor/build/include /home/kazhao/meta_compressor/build/lib/libsz_cpp.a /home/kazhao/tools/zstd-1.4.4/lib/libzstd.a  -lm

@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
     int status;
     float *dataIn;
 
-    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 2;
+    size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 4.5;
     unsigned char *compressed_output = (unsigned char *) malloc(est_compressed_size);
     unsigned char *compressed_output_pos = compressed_output;
     int folder_index = world_rank;
