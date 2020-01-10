@@ -4,7 +4,7 @@
 #SBATCH -A ECP-EZ
 #SBATCH --nodes 256
 #SBATCH --ntasks-per-node=32
-#SBATCH --time=18:00:00
+#SBATCH --time=20:00:00
 #SBATCH -o p8192.%j.%N.out
 #SBATCH -e p8192.%j.%N.error
 
@@ -28,5 +28,5 @@ srun ./parallel_kai sz.config 7 384 384 256
 # qmcpack8h
 srun ./parallel_sz sz.config 2 64 64 93840
 srun ./parallel_zfp sz.config 2 64 64 93840
-srun ./parallel_selector sz.config 2 64 64 93840
+#srun ./parallel_selector sz.config 2 64 64 93840
 srun ./parallel_kai sz.config 2 64 64 93840
