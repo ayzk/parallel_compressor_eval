@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=4096
+#SBATCH --job-name=p4096
 #SBATCH -p bdwall
 #SBATCH -A ECP-EZ
 #SBATCH --nodes 128
