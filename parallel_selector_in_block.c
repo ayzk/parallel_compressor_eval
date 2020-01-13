@@ -68,7 +68,7 @@ int main(int argc, char * argv[])
 	int num_vars = atoi(argv[2]);
 
     int qmcpack8h_num_vars = 1;
-    char qmcpack8h_file[1][50] = {"spin_0_truncated.bin.dat"};
+    char qmcpack8h_file[1][50] = {"einspline_288_115_69_69_truncated.bin.dat"};
     double qmcpack8h_rel_bound[1] = {1e-6};
 
 	char file[13][50];
