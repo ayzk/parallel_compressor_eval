@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
-#include "rw1.h"
+#include "rw.h"
 unsigned char *readByteData(char *srcFilePath, size_t *byteLength, int *status)
 {
     FILE *pFile = fopen(srcFilePath, "rb");

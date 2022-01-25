@@ -112,7 +112,6 @@ float * zfp_decompress_3D(unsigned char * comp_data, double tolerance, size_t bu
 int main(int argc, char * argv[])
 {
     srand(time(0));
-	size_t r5=0,r4=0,r3=0,r2=0,r1=0;
 	char *cfgFile;
 
 	MPI_Init(NULL, NULL);
@@ -123,91 +122,29 @@ int main(int argc, char * argv[])
 	int world_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-	if(argc < 3)
-	{
-		printf("Test case: testfloat_compress [config_file] [srcFilePath] [dimension sizes...]\n");
-		printf("Example: testfloat_compress sz.config testfloat_8_8_128.dat 8 8 128\n");
-		exit(0);
-	}
+    double rel_bound[100];
+	double absbound[100];
 
-	cfgFile=argv[1];
+    //Begin modify this part
+    int num_vars = 4;
+    char *file_folder = "/lcrc/project/ECP-EZ/public/compression/hasan-datasets/";
+    char file[4][100] = {"baryon_density.f32.bin.log.dat", "dark_matter_density.f32.bin.log.dat","temperature.f32.bin.log.dat","velocity_x.f32.bin"};
+    size_t r5=0, r4=0, r3 = 512, r2 = 512, r1 = 512;
+	absbound[0]=atof(argv[1]);
+    absbound[1]=atof(argv[2]);
+    absbound[2]=atof(argv[3]);
+    absbound[3]=atof(argv[4]);
+    //End modify this part
 
-	if(argc>=4)
-	  r1 = atoi(argv[3]); //8
-	if(argc>=5)
-	  r2 = atoi(argv[4]); //8
-	if(argc>=6)
-	  r3 = atoi(argv[5]); //128
-	if(argc>=7)
-	  r4 = atoi(argv[6]);
-	if(argc>=8)
-	  r5 = atoi(argv[7]);
 
 	if (world_rank == 0) printf ("Start parallel compressing ... \n");
 	if (world_rank == 0) printf("size: %d\n", world_size);
 	double start, end;
 	double costReadOri = 0.0, costReadZip = 0.0, costWriteZip = 0.0, costWriteOut = 0.0, costComp = 0.0, costDecomp = 0.0;
 
-	MPI_Barrier(MPI_COMM_WORLD);
-    int num_vars = atoi(argv[2]);
-
-    int qmcpack8h_num_vars = 2;
-    char qmcpack8h_file[2][50] = {"spin_0_truncated.bin.dat", "spin_1_truncated.bin.dat"};
-    double qmcpack8h_rel_bound[2] = {1e-6, 1e-6};
-
-    // qmacpack6k
-    int qmcpack6k_num_vars = 20;
-    char qmacpack6k_file[20][50] = {"s2700l300_truncated.bin.dat", "s4500l300_truncated.bin.dat", "s1200l300_truncated.bin.dat",
-                                    "s300l300_truncated.bin.dat", "s4200l300_truncated.bin.dat", "s5400l300_truncated.bin.dat",
-                                    "s1800l300_truncated.bin.dat", "s5700l300_truncated.bin.dat", "s4800l300_truncated.bin.dat",
-                                    "s3300l300_truncated.bin.dat", "s5100l300_truncated.bin.dat", "s1500l300_truncated.bin.dat",
-                                    "s600l300_truncated.bin.dat", "s0l300_truncated.bin.dat", "s3600l300_truncated.bin.dat",
-                                    "s900l300_truncated.bin.dat", "s3900l300_truncated.bin.dat", "s3000l300_truncated.bin.dat",
-                                    "s2100l300_truncated.bin.dat", "s2400l300_truncated.bin.dat"};
-    double qmacpack6k_rel_bound[20] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6,
-                                       1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-
-    // Hurricane
-    int hurricane_num_vars = 13;
-    char hurricane_file[13][50] = {"Uf48_truncated.bin.dat", "Vf48_truncated.bin.dat", "Wf48_truncated.bin.dat",
-                                   "TCf48_truncated.bin.dat", "Pf48_truncated.bin.dat", "QVAPORf48_truncated.bin.dat",
-                                   "CLOUDf48_truncated.bin.dat", "QCLOUDf48_truncated.bin.dat", "QICEf48_truncated.bin.dat",
-                                   "QRAINf48_truncated.bin.dat", "QSNOWf48_truncated.bin.dat", "QGRAUPf48_truncated.bin.dat",
-                                   "PRECIPf48_truncated.bin.dat"};
-    double hurricane_rel_bound[13] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-    // miranda
-    int miranda_num_vars = 7;
-    char miranda_file[7][50] = {"velocityy_truncated.bin.dat", "velocityx_truncated.bin.dat", "density_truncated.bin.dat",
-                                "pressure_truncated.bin.dat", "velocityz_truncated.bin.dat", "viscocity_truncated.bin.dat",
-                                "diffusivity_truncated.bin.dat"};
-    double miranda_rel_bound[7] = {1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5};
-
-    // assignment
-    char file[20][50];
-    double *rel_bound;
-    double precision[20];
-    if (num_vars == qmcpack6k_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmacpack6k_file[i]);
-        rel_bound = qmacpack6k_rel_bound;
-    } else if (num_vars == qmcpack8h_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], qmcpack8h_file[i]);
-        rel_bound = qmcpack8h_rel_bound;
-    } else if (num_vars == hurricane_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], hurricane_file[i]);
-        rel_bound = hurricane_rel_bound;
-    } else if (num_vars == miranda_num_vars) {
-        for (int i = 0; i < num_vars; i++) strcpy(file[i], miranda_file[i]);
-        rel_bound = miranda_rel_bound;
-    } else {
-        printf("No such variablem, exit\n");
-        MPI_Finalize();
-        return 0;
-    }
-
-	size_t compressed_size[20];
-
-	char folder[50] = "/lcrc/project/ECP-EZ/public/compression/datasets";
-	char filename[100];
+	MPI_Barrier(MPI_COMM_WORLD);	
+	
+	size_t compressed_size[100];
 	char zip_filename[100];
 	// char out_filename[100];
 	size_t inSize, outSize;
@@ -220,18 +157,19 @@ int main(int argc, char * argv[])
 	unsigned char * compressed_output_pos = compressed_output;
 	int folder_index = world_rank;
 	for(int i=0; i<num_vars; i++){
-		sprintf(filename, "%s/%d/%s", folder, folder_index, file[i]);
+        char filename[100];
+        sprintf(filename, "%s/%s", file_folder, file[i]);
 		// Read Input Data
 		if(world_rank == 0){
 			start = MPI_Wtime();
 			dataIn = readFloatData(filename, &nbEle, &status);
 			end = MPI_Wtime();
-			printf("file %s read time: %.2f\n", filename, end - start);
+			// printf("file %s read time: %.2f\n", filename, end - start);
 			start = MPI_Wtime();
 			MPI_Bcast(&nbEle, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(dataIn, nbEle, MPI_FLOAT, 0, MPI_COMM_WORLD);
 			end = MPI_Wtime();
-			printf("broadcast time: %.2f\n", end - start);
+			// printf("broadcast time: %.2f\n", end - start);
 		}
 		else{
 			MPI_Bcast(&nbEle, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
@@ -244,20 +182,20 @@ int main(int argc, char * argv[])
 			costReadOri += end - start;
 		}
 
-        float max = dataIn[0];
-        float min = dataIn[0];
-        for (int j = 1; j < r1 * r2 * r3; j++) {
-            if (max < dataIn[j]) max = dataIn[j];
-            if (min > dataIn[j]) min = dataIn[j];
-        }
-        precision[i] = rel_bound[i] * (max - min);
+        // float max = dataIn[0];
+        // float min = dataIn[0];
+        // for (int j = 1; j < r1 * r2 * r3; j++) {
+        //     if (max < dataIn[j]) max = dataIn[j];
+        //     if (min > dataIn[j]) min = dataIn[j];
+        // }
+        // absbound[i] = rel_bound[i] * (max - min);
 
 		// Compress Input Data
 		size_t out_size;
-		if (world_rank == 0) printf ("Compressing %s\n", filename);
+		// if (world_rank == 0) printf ("Compressing %s\n", filename);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0) start = MPI_Wtime();
-		unsigned char * bytesOut = zfp_compress_3D(dataIn, precision[i], r3, r2, r1, &compressed_size[i]);
+		unsigned char * bytesOut = zfp_compress_3D(dataIn, absbound[i], r3, r2, r1, &compressed_size[i]);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){
 			end = MPI_Wtime();
@@ -269,16 +207,16 @@ int main(int argc, char * argv[])
 		free(bytesOut);
 	}
     struct stat st = {0};
-    if (stat("/lcrc/globalscratch/kazhao", &st) == -1) {
-        mkdir("/lcrc/globalscratch/kazhao", 0777);
+    if (stat("/lcrc/globalscratch/zhaok", &st) == -1) {
+        mkdir("/lcrc/globalscratch/zhaok", 0777);
     }
-    sprintf(zip_filename, "%s/zfp_%d_%d.out", "/lcrc/globalscratch/kazhao", folder_index, rand());	// Write Compressed Data
+    sprintf(zip_filename, "%s/zfp_%d_%d.out", "/lcrc/globalscratch/zhaok", folder_index, rand());	// Write Compressed Data
 
 	size_t total_size = compressed_output_pos - compressed_output;
 	// Write Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
 	if(world_rank == 0) start = MPI_Wtime();
-    if (world_rank == 0) printf("write compressed file to disk %s \n", zip_filename);
+    // if (world_rank == 0) printf("write compressed file to disk %s \n", zip_filename);
     writeByteData(compressed_output, total_size, zip_filename, &status);
 	MPI_Barrier(MPI_COMM_WORLD);
 	if(world_rank == 0){
@@ -289,7 +227,7 @@ int main(int argc, char * argv[])
 	// Read Compressed Data
 	MPI_Barrier(MPI_COMM_WORLD);
 	if(world_rank == 0) start = MPI_Wtime();
-    if (world_rank == 0) printf("read compressed file from disk %s \n", zip_filename);
+    // if (world_rank == 0) printf("read compressed file from disk %s \n", zip_filename);
     compressed_output = readByteData(zip_filename, &inSize, &status);
     if (inSize != total_size) {
         printf("ERROR! Broken file : %s", zip_filename);
@@ -306,9 +244,9 @@ int main(int argc, char * argv[])
     for(int i=0; i<num_vars; i++){
 		// Decompress Compressed Data
 		MPI_Barrier(MPI_COMM_WORLD);
-        if (world_rank == 0) printf("decompress %d-th field\n", i);
+        // if (world_rank == 0) printf("decompress %d-th field\n", i);
         if(world_rank == 0) start = MPI_Wtime();
-		float * dataOut = zfp_decompress_3D(compressed_output_pos, precision[i], compressed_size[i], r3, r2, r1);
+		float * dataOut = zfp_decompress_3D(compressed_output_pos, absbound[i], compressed_size[i], r3, r2, r1);
 		MPI_Barrier(MPI_COMM_WORLD);
 		if(world_rank == 0){
 			end = MPI_Wtime();
@@ -319,21 +257,22 @@ int main(int argc, char * argv[])
 	}
 	free(compressed_output);
 
-	if (world_rank == 0)
-	{
-		printf ("ZFP Finish parallel compressing, total compression ratio %.4g.\n", 1.0*r1*r2*r3*sizeof(float)*num_vars / total_size);
-		printf("Separate ratios: ");
-		for(int i=0; i<num_vars; i++){
-			printf("%.4g ", 1.0*r1*r2*r3*sizeof(float) / compressed_size[i]);
-		}
-		printf("\n");
-		printf ("Timecost of reading original files = %.2f seconds\n", costReadOri);
-		printf ("Timecost of reading compressed files = %.2f seconds\n", costReadZip);
-		printf ("Timecost of writing compressed files = %.2f seconds\n", costWriteZip);
-		printf ("Timecost of writing decompressed files = %.2f seconds\n", costWriteOut);
-		printf ("Timecost of compressing using %d processes = %.2f seconds\n", world_size, costComp);
-		printf ("Timecost of decompressing using %d processes = %.2f seconds\n\n", world_size, costDecomp);
-	}
+    if (world_rank == 0) {
+        printf("ZFP Finish parallel compressing, total compression ratio = %.4g\n", 1.0 * r1 * r2 * r3 * sizeof(float) * num_vars / total_size);
+        printf("Separate ratios\n");
+        for (int i = 0; i < num_vars; i++) {
+            printf("%s = %.4g \n", file[i], 1.0 * r1 * r2 * r3 * sizeof(float) / compressed_size[i]);
+        }
+        printf("\n");
+        // printf("Timecost of reading original files = %.2f seconds\n", costReadOri);
+        printf("Timecost of compressing using %d processes = %.2f seconds\n", world_size, costComp);
+        printf("Timecost of writing compressed files = %.2f seconds\n", costWriteZip);
+        printf("Timecost of reading compressed files = %.2f seconds\n", costReadZip);
+        printf("Timecost of decompressing using %d processes = %.2f seconds\n\n", world_size, costDecomp);
+        // printf("Timecost of writing decompressed files = %.2f seconds\n", costWriteOut);
+        printf("Throughput of reading compressed files = %.2f GB/s\n", total_size * world_size /1000.0/1000/1000/costReadZip);
+        printf("Throughput of writing compressed files = %.2f GB/s\n", total_size * world_size /1000.0/1000/1000/costWriteZip);
+    }
 
 
 	MPI_Finalize();

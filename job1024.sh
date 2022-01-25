@@ -1,13 +1,15 @@
 #!/bin/bash
-#SBATCH --job-name=p256
-#SBATCH -p bdws
+#SBATCH --job-name=p1024
+#SBATCH -p bdwall
 #SBATCH -A ECP-EZ
-#SBATCH --nodes 8
+#SBATCH --nodes 32
 #SBATCH --ntasks-per-node=32
-#SBATCH --time=1:00:00
-#SBATCH -o p256.%j.%N.out
-#SBATCH -e p256.%j.%N.error
+#SBATCH --time=5:00:00
+#SBATCH -o p1024.%j.%N.out
+#SBATCH -e p1024.%j.%N.error
 
+echo wait .... 30 seconds
+sleep 30
 echo date=`date`
 
 
