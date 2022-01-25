@@ -7,20 +7,19 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
-#include "sz.h"
+
 #include "mpi.h"
 #include "rw.h"
+#include "sz.h"
 
 int main(int argc, char *argv[]) {
-
     srand(time(0));
 
     MPI_Init(NULL, NULL);
@@ -33,7 +32,6 @@ int main(int argc, char *argv[]) {
 
     double rel_bound[100];
 
-
     if (argc < 1) {
         printf("Test case: parallel_sz [config_file] eb...\n");
         printf("Example: parallel_sz sz.config 1e-3 \n");
@@ -44,15 +42,13 @@ int main(int argc, char *argv[]) {
     //Begin modify this part
     int num_vars = 4;
     char *file_folder = "/lcrc/project/ECP-EZ/public/compression/hasan-datasets/";
-    char file[4][100] = {"baryon_density.f32.bin.log.dat", "dark_matter_density.f32.bin.log.dat","temperature.f32.bin.log.dat","velocity_x.f32.bin"};
-    size_t r5=0, r4=0, r3 = 512, r2 = 512, r1 = 512;
-    rel_bound[0]=atof(argv[2]);
-    rel_bound[1]=atof(argv[3]);
-    rel_bound[2]=atof(argv[4]);
-    rel_bound[3]=atof(argv[5]);
+    char file[4][100] = {"baryon_density.f32.bin.log.dat", "dark_matter_density.f32.bin.log.dat", "temperature.f32.bin.log.dat", "velocity_x.f32.bin"};
+    size_t r5 = 0, r4 = 0, r3 = 512, r2 = 512, r1 = 512;
+    rel_bound[0] = atof(argv[2]);
+    rel_bound[1] = atof(argv[3]);
+    rel_bound[2] = atof(argv[4]);
+    rel_bound[3] = atof(argv[5]);
     //End modify this part
-
-    
 
     SZ_Init(NULL);
 
@@ -72,7 +68,7 @@ int main(int argc, char *argv[]) {
     float *dataIn;
 
     size_t est_compressed_size = r1 * r2 * r3 * sizeof(float) * num_vars / 5;
-    unsigned char *compressed_output = (unsigned char *) malloc(est_compressed_size);
+    unsigned char *compressed_output = (unsigned char *)malloc(est_compressed_size);
     unsigned char *compressed_output_pos = compressed_output;
     for (int i = 0; i < num_vars; i++) {
         char filename[100];
@@ -90,7 +86,7 @@ int main(int argc, char *argv[]) {
             // printf("broadcast time: %.2f\n", end - start);
         } else {
             MPI_Bcast(&nbEle, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
-            dataIn = (float *) malloc(nbEle * sizeof(float));
+            dataIn = (float *)malloc(nbEle * sizeof(float));
             MPI_Bcast(dataIn, nbEle, MPI_FLOAT, 0, MPI_COMM_WORLD);
         }
         MPI_Barrier(MPI_COMM_WORLD);
@@ -120,7 +116,7 @@ int main(int argc, char *argv[]) {
     if (stat("/lcrc/globalscratch/zhaok", &st) == -1) {
         mkdir("/lcrc/globalscratch/zhaok", 0777);
     }
-    sprintf(zip_filename, "%s/sz_%d_%d_%d.out", "/lcrc/globalscratch/zhaok", world_rank, world_size, rand());    // Write Compressed Data
+    sprintf(zip_filename, "%s/sz_%d_%d_%d.out", "/lcrc/globalscratch/zhaok", world_rank, world_size, rand());  // Write Compressed Data
     size_t total_size = compressed_output_pos - compressed_output;
     // Write Compressed Data
     MPI_Barrier(MPI_COMM_WORLD);
@@ -152,7 +148,6 @@ int main(int argc, char *argv[]) {
     }
     compressed_output_pos = compressed_output;
 
-
     for (int i = 0; i < num_vars; i++) {
         // Decompress Compressed Data
         MPI_Barrier(MPI_COMM_WORLD);
@@ -175,15 +170,15 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < num_vars; i++) {
             printf("%s = %.4g \n", file[i], 1.0 * r1 * r2 * r3 * sizeof(float) / compressed_size[i]);
         }
-        printf("\n");
+        // printf("\n");
         // printf("Timecost of reading original files = %.2f seconds\n", costReadOri);
         printf("Timecost of compressing using %d processes = %.2f seconds\n", world_size, costComp);
         printf("Timecost of writing compressed files = %.2f seconds\n", costWriteZip);
         printf("Timecost of reading compressed files = %.2f seconds\n", costReadZip);
-        printf("Timecost of decompressing using %d processes = %.2f seconds\n\n", world_size, costDecomp);
+        printf("Timecost of decompressing using %d processes = %.2f seconds\n", world_size, costDecomp);
         // printf("Timecost of writing decompressed files = %.2f seconds\n", costWriteOut);
-        printf("Throughput of reading compressed files = %.2f GB/s\n", total_size * world_size /1000.0/1000/1000/costReadZip);
-        printf("Throughput of writing compressed files = %.2f GB/s\n", total_size * world_size /1000.0/1000/1000/costWriteZip);
+        printf("Throughput of reading compressed files = %.2f GB/s\n", total_size * world_size / 1000.0 / 1000 / 1000 / costReadZip);
+        printf("Throughput of writing compressed files = %.2f GB/s\n", total_size * world_size / 1000.0 / 1000 / 1000 / costWriteZip);
     }
 
     SZ_Finalize();

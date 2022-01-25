@@ -5,10 +5,10 @@ module load gcc/8.2.0-g7hppkz
 module load mpich
 rm parallel_zfp parallel_sz2
 
-szsrc=/home/zhaok/code/sz2/install/include
-szlib=/home/zhaok/code/sz2/install/lib/
-zfpsrc=/home/zhaok/code/zfp/include
-zfplib=/home/zhaok/code/zfp/build/lib64/
+szsrc=$HOME/code/sz2/install/include
+szlib=$HOME/code/sz2/install/lib/
+zfpsrc=$HOME/code/zfp/include
+zfplib=$HOME/code/zfp/build/lib64/
 
 gcc -c rw.c
 
